@@ -81,6 +81,12 @@ final class MainMenuViewController: UIViewController {
         addLayouts()
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        scoreLabel.text = "\(UserDefaults.highScore)"
+    }
+    
     func addViews() {
         view.addSubview(background)
         view.addSubview(logo)
@@ -128,10 +134,9 @@ final class MainMenuViewController: UIViewController {
 
 extension MainMenuViewController {
     @objc private func playClick() {
-        DispatchQueue.main.asyncAfter(deadline: .now()) {
-            let vc = GameViewController()
-            vc.modalPresentationStyle = .fullScreen
-            self.present(vc, animated: true)
-        }
+        let gameVC = GameViewController()
+        gameVC.modalPresentationStyle = .fullScreen
+        gameVC.navigationItem.hidesBackButton = true
+        self.navigationController?.pushViewController(gameVC, animated: true)
     }
 }

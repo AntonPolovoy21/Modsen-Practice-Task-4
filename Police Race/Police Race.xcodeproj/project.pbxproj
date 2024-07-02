@@ -17,6 +17,8 @@
 		848956202C332D7500AFB43B /* UIScreenSizeExt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8489561F2C332D7500AFB43B /* UIScreenSizeExt.swift */; };
 		848956222C33312E00AFB43B /* UserDefaultsHighScoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 848956212C33312E00AFB43B /* UserDefaultsHighScoreManager.swift */; };
 		848956242C33422600AFB43B /* PlayerPosition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 848956232C33422600AFB43B /* PlayerPosition.swift */; };
+		848956262C33C1AF00AFB43B /* GameOverViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 848956252C33C1AF00AFB43B /* GameOverViewController.swift */; };
+		848956282C33C3CB00AFB43B /* BitMasks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 848956272C33C3CB00AFB43B /* BitMasks.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -31,6 +33,8 @@
 		8489561F2C332D7500AFB43B /* UIScreenSizeExt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIScreenSizeExt.swift; sourceTree = "<group>"; };
 		848956212C33312E00AFB43B /* UserDefaultsHighScoreManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsHighScoreManager.swift; sourceTree = "<group>"; };
 		848956232C33422600AFB43B /* PlayerPosition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerPosition.swift; sourceTree = "<group>"; };
+		848956252C33C1AF00AFB43B /* GameOverViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameOverViewController.swift; sourceTree = "<group>"; };
+		848956272C33C3CB00AFB43B /* BitMasks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitMasks.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,6 +67,7 @@
 		848956002C3327ED00AFB43B /* Police Race */ = {
 			isa = PBXGroup;
 			children = (
+				848956292C33C43A00AFB43B /* Structs */,
 				8489561C2C3329A000AFB43B /* Controllers */,
 				8489561B2C33299700AFB43B /* Scenes */,
 				8489561A2C33298C00AFB43B /* Extensions */,
@@ -113,8 +118,17 @@
 			children = (
 				848956092C3327ED00AFB43B /* GameViewController.swift */,
 				8489561D2C3329CE00AFB43B /* MainMenuViewController.swift */,
+				848956252C33C1AF00AFB43B /* GameOverViewController.swift */,
 			);
 			path = Controllers;
+			sourceTree = "<group>";
+		};
+		848956292C33C43A00AFB43B /* Structs */ = {
+			isa = PBXGroup;
+			children = (
+				848956272C33C3CB00AFB43B /* BitMasks.swift */,
+			);
+			path = Structs;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -191,7 +205,9 @@
 				848956202C332D7500AFB43B /* UIScreenSizeExt.swift in Sources */,
 				8489561E2C3329CF00AFB43B /* MainMenuViewController.swift in Sources */,
 				848956082C3327ED00AFB43B /* GameScene.swift in Sources */,
+				848956282C33C3CB00AFB43B /* BitMasks.swift in Sources */,
 				8489560A2C3327ED00AFB43B /* GameViewController.swift in Sources */,
+				848956262C33C1AF00AFB43B /* GameOverViewController.swift in Sources */,
 				848956022C3327ED00AFB43B /* AppDelegate.swift in Sources */,
 				848956242C33422600AFB43B /* PlayerPosition.swift in Sources */,
 				848956222C33312E00AFB43B /* UserDefaultsHighScoreManager.swift in Sources */,

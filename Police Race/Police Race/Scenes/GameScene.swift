@@ -8,14 +8,14 @@
 import SpriteKit
 import GameplayKit
 
-class GameScene: SKScene {
+class GameScene: SKScene, SKPhysicsContactDelegate {
     
     // MARK: Nodes
     private var backgroundNode1: SKSpriteNode!
     private var backgroundNode2: SKSpriteNode!
     private var buttonLeft: SKSpriteNode!
     private var buttonRight: SKSpriteNode!
-    private var player: SKSpriteNode!
+    private var carPlayer: SKSpriteNode!
     private var enemyCars: [SKSpriteNode] = []
     
     // MARK: States
@@ -24,20 +24,26 @@ class GameScene: SKScene {
     private let carMoveDuration: TimeInterval = 0.3
     private let carMovementDistance: CGFloat = 100
     private let enemyCarSpeed: CGFloat = 200
+    private var gameTimeRemaining: TimeInterval = 180
     private var playerPosition: PlayerPosition = .center
     private var isPlayerMoving = false
+    private var wasGameEnded = false
     private var gameScore = 0
     
     // MARK: Timers
     private var timer: Timer?
     private var enemySpawnTimer: Timer?
+    private var gameTimer: Timer?
     
     var parentVC: GameViewController?
     
     override func didMove(to view: SKView) {
+        self.physicsWorld.contactDelegate = self
+        
         initNodes()
         startBackgroundAnimation()
         startEnemyCarSpawning()
+        startGameTimer()
     }
     
     func initNodes() {
@@ -45,7 +51,7 @@ class GameScene: SKScene {
         addBackground2()
         addButtonToLeft()
         addButtonToRight()
-        addCar()
+        addPlayerCar()
     }
     
     func startBackgroundAnimation() {
@@ -55,9 +61,26 @@ class GameScene: SKScene {
     }
     
     func startEnemyCarSpawning() {
-        enemySpawnTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { [weak self] _ in
+        enemySpawnTimer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: true) { [weak self] _ in
             self?.addEnemyCar()
         }
+    }
+    
+    func startGameTimer() {
+        gameTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            self?.updateGameTimer()
+        }
+    }
+    
+    func endThisGame() {
+        wasGameEnded = true
+        scene?.isPaused = true
+        
+        timer?.invalidate()
+        enemySpawnTimer?.invalidate()
+        gameTimer?.invalidate()
+        
+        parentVC?.gameOverShow(withScore: gameScore)
     }
 }
 
@@ -77,19 +100,19 @@ extension GameScene {
                     isPlayerMoving = false
                 case .center:
                     playerPosition = .left
-                    movePlayerCar(to: CGPoint(x: player.position.x - carMovementDistance, y: player.position.y))
+                    movePlayerCar(to: CGPoint(x: carPlayer.position.x - carMovementDistance, y: carPlayer.position.y))
                 case .right:
                     playerPosition = .center
-                    movePlayerCar(to: CGPoint(x: player.position.x - carMovementDistance, y: player.position.y))
+                    movePlayerCar(to: CGPoint(x: carPlayer.position.x - carMovementDistance, y: carPlayer.position.y))
                 }
             } else if buttonRight.contains(location) {
                 switch playerPosition {
                 case .left:
                     playerPosition = .center
-                    movePlayerCar(to: CGPoint(x: player.position.x + carMovementDistance, y: player.position.y))
+                    movePlayerCar(to: CGPoint(x: carPlayer.position.x + carMovementDistance, y: carPlayer.position.y))
                 case .center:
                     playerPosition = .right
-                    movePlayerCar(to: CGPoint(x: player.position.x + carMovementDistance, y: player.position.y))
+                    movePlayerCar(to: CGPoint(x: carPlayer.position.x + carMovementDistance, y: carPlayer.position.y))
                 case .right:
                     playerPosition = .right
                     isPlayerMoving = false
@@ -102,6 +125,13 @@ extension GameScene {
 // MARK: Update Methods
 
 extension GameScene {
+    func updateGameTimer() {
+        gameTimeRemaining -= 1
+        if gameTimeRemaining <= 0 {
+            endThisGame()
+        }
+    }
+    
     func updateBackground() {
         backgroundNode1.position.y -= 5
         backgroundNode2.position.y -= 5
@@ -133,10 +163,22 @@ extension GameScene {
 // MARK: Nodes Configuration Methods
 
 extension GameScene {
+    func configPhysicsForPlayer() {
+        carPlayer.physicsBody = SKPhysicsBody(texture: carPlayer.texture ?? SKTexture(), size: carPlayer.size)
+        carPlayer.physicsBody?.isDynamic = false
+        carPlayer.physicsBody?.affectedByGravity = false
+        carPlayer.physicsBody?.categoryBitMask = BitMasks.player
+        carPlayer.physicsBody?.collisionBitMask = BitMasks.police
+        carPlayer.physicsBody?.contactTestBitMask = BitMasks.police
+    }
+    
     func addButtonToLeft() {
         buttonLeft = SKSpriteNode(imageNamed: "arrow_left")
         buttonLeft.size = CGSize(width: 75, height: 100)
         buttonLeft.position = CGPoint(x: size.width / 4 + 10, y: 60)
+        
+        buttonLeft.zPosition = 2
+        
         addChild(buttonLeft)
     }
     
@@ -144,6 +186,9 @@ extension GameScene {
         buttonRight = SKSpriteNode(imageNamed: "arrow_right")
         buttonRight.size = CGSize(width: 75, height: 100)
         buttonRight.position = CGPoint(x: size.width - size.width / 4 - 10, y: 60)
+        
+        buttonRight.zPosition = 2
+        
         addChild(buttonRight)
     }
     
@@ -175,11 +220,14 @@ extension GameScene {
         addChild(backgroundNode2)
     }
     
-    func addCar() {
-        player = SKSpriteNode(imageNamed: "car-player")
-        player.size = CGSize(width: 50, height: 110)
-        player.position = CGPoint(x: size.width / 2, y: 150)
-        addChild(player)
+    func addPlayerCar() {
+        carPlayer = SKSpriteNode(imageNamed: "car-player")
+        carPlayer.size = CGSize(width: 50, height: 110)
+        carPlayer.position = CGPoint(x: size.width / 2, y: 150)
+        
+        addChild(carPlayer)
+        
+        configPhysicsForPlayer()
     }
     
     func addEnemyCar() {
@@ -199,6 +247,14 @@ extension GameScene {
         }
         enemyCar.position = CGPoint(x: posX, y: size.height + enemyCar.size.height / 2)
         addChild(enemyCar)
+        
+        enemyCar.physicsBody = SKPhysicsBody(texture: enemyCar.texture ?? SKTexture(), size: enemyCar.size)
+        enemyCar.physicsBody?.isDynamic = true
+        enemyCar.physicsBody?.affectedByGravity = false
+        enemyCar.physicsBody?.categoryBitMask = BitMasks.police
+        enemyCar.physicsBody?.collisionBitMask = BitMasks.player
+        enemyCar.physicsBody?.contactTestBitMask = BitMasks.player
+        
         enemyCars.append(enemyCar)
         moveEnemyCar(car: enemyCar, to: CGPoint(x: enemyCar.position.x, y: -100), duration: 5)
     }
@@ -209,7 +265,7 @@ extension GameScene {
 extension GameScene {
     private func movePlayerCar(to position: CGPoint) {
         let moveAction = SKAction.move(to: position, duration: carMoveDuration)
-        player.run(moveAction)
+        carPlayer.run(moveAction)
         DispatchQueue.main.asyncAfter(deadline: .now() + carMoveDuration) {
             self.isPlayerMoving = false
         }
@@ -218,5 +274,14 @@ extension GameScene {
     private func moveEnemyCar(car: SKNode, to position: CGPoint, duration: CGFloat) {
         let moveAction = SKAction.move(to: position, duration: duration)
         car.run(moveAction)
+    }
+}
+
+// MARK:  Physics Contact Methods
+
+extension GameScene {
+    func didBegin(_ contact: SKPhysicsContact) {
+        if wasGameEnded { return }
+        endThisGame()
     }
 }

@@ -25,7 +25,14 @@ class GameViewController: UIViewController {
         }
     }
     
-    func gameOverShow() {
-        print(1)
+    func gameOverShow(withScore: Int) {
+        if withScore > UserDefaults.highScore {
+            UserDefaults.highScore = withScore
+        }
+        
+        let gameOverVC = GameOverViewController(score: withScore)
+        gameOverVC.modalPresentationStyle = .fullScreen
+        gameOverVC.navigationItem.hidesBackButton = true
+        self.navigationController?.pushViewController(gameOverVC, animated: true)
     }
 }
